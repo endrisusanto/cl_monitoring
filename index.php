@@ -110,7 +110,7 @@ if ($filter === 'all') {
             --text-secondary-color: #6b7280;
             --glass-bg: rgba(255, 255, 255, 0.6);
             --glass-border: rgba(0, 0, 0, 0.08);
-            --table-header-bg: rgba(0, 0, 0, 0.05);
+            --table-header-bg: rgba(249, 250, 251, 0.85);
             --table-hover-bg: rgba(0, 0, 0, 0.03);
             --table-border: rgba(0, 0, 0, 0.1);
             --input-bg: rgba(0, 0, 0, 0.05);
@@ -125,7 +125,7 @@ if ($filter === 'all') {
             --text-secondary-color: #9ca3af;
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --table-header-bg: rgba(255, 255, 255, 0.08);
+            --table-header-bg: rgba(30, 30, 50, 0.85);
             --table-hover-bg: rgba(255, 255, 255, 0.07);
             --table-border: rgba(255, 255, 255, 0.1);
             --input-bg: rgba(255, 255, 255, 0.05);
@@ -162,27 +162,67 @@ if ($filter === 'all') {
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
             transition: background-color 0.5s ease, border-color 0.5s ease;
         }
+       
+        /* START: Corrected Table and Sticky Styles */
+        .table-container {
+            position: relative;
+            overflow-x: auto;
+            max-height: 70vh;
+        }
         .themed-table {
-            border-collapse: separate; border-spacing: 0; width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            table-layout: auto; /* Ensure columns size correctly */
         }
         .themed-table th, .themed-table td {
             border-bottom: 1px solid var(--table-border);
             padding: 0.75rem 1rem;
             text-align: center;
             vertical-align: middle;
-            position: relative;
             white-space: nowrap;
+            transition: background-color 0.2s ease;
         }
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
         .themed-table th {
-            background-color: var(--table-header-bg);
             font-weight: 600;
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 25;
+            background: var(--table-header-bg);
+            backdrop-filter: blur(8px);
         }
-        .themed-table tr:hover {
+        .themed-table tr:hover td {
             background-color: var(--table-hover-bg);
         }
         .themed-table td { cursor: pointer; }
-        .themed-table th:first-child, .themed-table td:first-child { border-top-left-radius: 1rem; border-bottom-left-radius: 1rem; }
-        .themed-table th:last-child, .themed-table td:last-child { border-top-right-radius: 1rem; border-bottom-right-radius: 1rem; }
+        
+        /* Sticky action column */
+        .sticky-col {
+            position: -webkit-sticky !important;
+            position: sticky !important;
+            right: 0 !important;
+            z-index: 10;
+            min-width: 100px; /* Ensure enough width for action buttons */
+        }
+        .themed-table th.sticky-col {
+            z-index: 30; /* Higher z-index for header */
+            background: var(--table-header-bg);
+            backdrop-filter: blur(8px);
+            border-left: 1px solid var(--table-border);
+        }
+        .themed-table td.sticky-col {
+            background: var(--table-header-bg);
+            backdrop-filter: blur(8px);
+            border-left: 1px solid var(--table-border);
+            z-index: 10; /* Ensure cells are above other content */
+        }
+        .themed-table tr:hover td.sticky-col {
+            background: var(--table-header-bg);
+        }
+        /* END: Corrected Table and Sticky Styles */
         
         .themed-button {
             background: rgba(79, 70, 229, 0.7);
@@ -220,7 +260,7 @@ if ($filter === 'all') {
             padding: 6px 12px; border-radius: 6px; font-size: 13px;
             visibility: hidden; opacity: 0;
             transition: opacity 0.3s ease, transform 0.3s ease;
-            z-index: 10; bottom: 120%; left: 50%;
+            z-index: 50; bottom: 120%; left: 50%;
             transform: translateX(-50%) translateY(5px);
             pointer-events: none; white-space: nowrap;
         }
@@ -232,18 +272,31 @@ if ($filter === 'all') {
             border-radius: 50%; display: inline-flex;
             align-items: center; justify-content: center;
         }
+        /* START: New Action Button Styles */
         .action-btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            width: 2rem; height: 2rem; border-radius: 50%;
-            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.5rem; /* Rounded square */
+            transition: all 0.3s ease-in-out;
+            border: 1px solid rgba(128, 128, 128, 0.2); /* Subtle outline */
         }
         .action-btn:hover {
-            background-color: rgba(128, 128, 128, 0.2);
             transform: scale(1.1);
+            border-color: transparent; /* Hide border to make glow more prominent */
         }
-        .actions-cell {
-            width: 1%; white-space: nowrap;
+        .action-btn.text-blue-400:hover {
+            box-shadow: 0 0 12px rgba(96, 165, 250, 0.8);
         }
+        .action-btn.text-yellow-400:hover {
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.8);
+        }
+        .action-btn.text-red-400:hover {
+            box-shadow: 0 0 12px rgba(248, 113, 113, 0.8);
+        }
+        /* END: New Action Button Styles */
         .search-icon { color: var(--text-secondary-color); }
         .filter-btn {
              background: rgba(128, 128, 128, 0.1); color: var(--text-secondary-color);
@@ -298,27 +351,44 @@ if ($filter === 'all') {
             </button>
         </div>
 
-        <div class="overflow-x-auto glass-container">
+        <div class="overflow-x-auto glass-container table-container">
             <table class="themed-table min-w-full" id="dataTable">
                 <thead>
                     <tr>
                         <?php
-                        $columns = [ 'model' => 'Model', 'p4_path' => 'P4 Path', 'date_release' => 'Date Release', 'ap' => 'AP', 'cp_modem' => 'CP(Modem)', 'csc' => 'CSC', 'csc_qb' => 'CSC QB', 'cl_sync' => 'CL Sync', 'xid_cl_latest' => 'XID CL Latest', 'latest_partial_cl' => 'Latest Partial CL', 'status_xid_cl' => 'Status XID CL', 'xid_cl_greater' => 'XID CL > CL Sync', 'xid_cl_missing' => 'XID CL Missing', 'csc_reference' => 'CSC Ref', 'status_model' => 'Status Model' ];
+                        // Urutan kolom baru sesuai permintaan
+                        $columns = [
+                            'model' => 'Model',
+                            'ap' => 'AP',
+                            'cp_modem' => 'CP',
+                            'csc' => 'CSC',
+                            'csc_qb' => 'CSC QB',
+                            'cl_sync' => 'CL Sync',
+                            'xid_cl_greater' => 'XID CL > CL Sync',
+                            'xid_cl_missing' => 'XID CL Missing',
+                            'status_xid_cl' => 'Status XID CL',
+                            'p4_path' => 'P4 Path',
+                            'csc_reference' => 'CSC Ref',
+                            'status_model' => 'Status Model'
+                        ];
+                        $column_alignments = ['model' => 'text-left', 'p4_path' => 'text-left'];
                         $current_sort_order = $sort_order === 'ASC' ? 'DESC' : 'ASC';
+
                         foreach ($columns as $key => $value) {
+                            $align_class = $column_alignments[$key] ?? '';
                             $is_sortable = in_array($key, $allowed_sort_columns);
                             $sort_icon = '';
                             if ($sort_by === $key && $is_sortable) {
                                 $sort_icon = $sort_order === 'ASC' ? '<i class="fas fa-sort-up ml-2"></i>' : '<i class="fas fa-sort-down ml-2"></i>';
                             }
                             if ($is_sortable) {
-                                echo "<th><a href='?sort_by=$key&sort_order=$current_sort_order&search=$search&filter=$filter'>$value $sort_icon</a></th>";
+                                echo "<th class='{$align_class}'><a href='?sort_by=$key&sort_order=$current_sort_order&search=$search&filter=$filter'>$value $sort_icon</a></th>";
                             } else {
-                                echo "<th>$value</th>";
+                                echo "<th class='{$align_class}'>$value</th>";
                             }
                         }
                         ?>
-                        <th>Aksi</th>
+                        <th class="sticky-col">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -331,27 +401,13 @@ if ($filter === 'all') {
                                 $row_json = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8');
                             ?>
                             <tr>
-                                <td data-copy="<?= htmlspecialchars($row['model']) ?>"><?= htmlspecialchars($row['model']) ?><span class="tooltip">Copied!</span></td>
-                                <td data-copy="<?= $p4_link ?>"><?= htmlspecialchars($row['p4_path']) ?><span class="tooltip">Copied!</span></td>
-                                <td data-copy="<?= htmlspecialchars($row['date_release']) ?>"><?= htmlspecialchars($row['date_release']) ?><span class="tooltip">Copied!</span></td>
+                                <!-- Sel data sesuai urutan baru -->
+                                <td data-copy="<?= htmlspecialchars($row['model']) ?>" class="text-left"><?= htmlspecialchars($row['model']) ?><span class="tooltip">Copied!</span></td>
                                 <td data-copy="<?= htmlspecialchars($row['ap']) ?>"><?= htmlspecialchars($row['ap']) ?><span class="tooltip">Copied!</span></td>
                                 <td data-copy="<?= htmlspecialchars($row['cp_modem']) ?>"><?= htmlspecialchars($row['cp_modem']) ?><span class="tooltip">Copied!</span></td>
                                 <td data-copy="<?= htmlspecialchars($row['csc']) ?>"><?= htmlspecialchars($row['csc']) ?><span class="tooltip">Copied!</span></td>
-                                <td class="text-center" data-nocopy><button onclick="copyToClipboard('<?= htmlspecialchars($row['csc_qb']) ?>', this)" class="text-blue-400 hover:text-blue-300 transition-transform duration-200 hover:scale-125"><i class="fas fa-link"></i></button><span class="tooltip">Copy Value</span></td>
+                                <td data-nocopy><button onclick="copyToClipboard('<?= htmlspecialchars($row['csc_qb']) ?>', this)" class="text-blue-400 hover:text-blue-300 transition-transform duration-200 hover:scale-125"><i class="fas fa-link"></i></button><span class="tooltip">Copy Value</span></td>
                                 <td data-copy="<?= htmlspecialchars($row['cl_sync']) ?>"><?= htmlspecialchars($row['cl_sync']) ?><span class="tooltip">Copied!</span></td>
-                                <td class="text-center" data-nocopy>
-                                    <button class="copy-cl-list-btn text-gray-400 hover:text-white transition-transform duration-200 hover:scale-125" data-copy="<?= htmlspecialchars($row['xid_cl_latest']) ?>">
-                                        <i class="fas fa-list-alt"></i>
-                                    </button>
-                                    <span class="tooltip">Salin Daftar CL</span>
-                                </td>
-                                <td class="text-center" data-nocopy>
-                                     <button class="copy-cl-list-btn text-gray-400 hover:text-white transition-transform duration-200 hover:scale-125" data-copy="<?= htmlspecialchars($row['latest_partial_cl']) ?>">
-                                        <i class="fas fa-list-alt"></i>
-                                    </button>
-                                    <span class="tooltip">Salin Daftar CL</span>
-                                </td>
-                                <td data-nocopy><span class="px-2 py-1 font-semibold leading-tight rounded-full <?= $cl_info['status'] === 'OK' ? 'bg-green-700/70 text-green-100' : 'bg-red-700/70 text-red-100' ?>"><?= $cl_info['status'] ?></span></td>
                                 <td data-nocopy>
                                     <ul class="list-none p-0 m-0 space-y-2">
                                     <?php if (!empty($cl_info['greater_cls'])): ?>
@@ -378,9 +434,11 @@ if ($filter === 'all') {
                                     <?php endif; ?>
                                     </ul>
                                 </td>
+                                <td data-nocopy><span class="px-2 py-1 font-semibold leading-tight rounded-full <?= $cl_info['status'] === 'OK' ? 'bg-green-700/70 text-green-100' : 'bg-red-700/70 text-red-100' ?>"><?= $cl_info['status'] ?></span></td>
+                                <td data-copy="<?= $p4_link ?>" class="text-left"><?= htmlspecialchars($row['p4_path']) ?><span class="tooltip">Copied!</span></td>
                                 <td data-copy="<?= htmlspecialchars($row['csc_reference']) ?>"><?= htmlspecialchars($row['csc_reference']) ?><span class="tooltip">Copied!</span></td>
                                 <td data-copy="<?= htmlspecialchars($row['status_model']) ?>"><?= htmlspecialchars($row['status_model']) ?><span class="tooltip">Copied!</span></td>
-                                <td class="actions-cell" data-nocopy>
+                                <td data-nocopy class="sticky-col">
                                     <div class="flex items-center justify-center gap-2">
                                         <a href="#" class="view-btn action-btn text-blue-400" title="View" data-row='<?= $row_json ?>'><i class="fas fa-eye"></i></a>
                                         <a href="edit.php?id=<?= $row['id'] ?>" class="action-btn text-yellow-400" title="Update"><i class="fas fa-edit"></i></a>
@@ -390,7 +448,7 @@ if ($filter === 'all') {
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <tr><td colspan="17" class="text-center py-4">Tidak ada data ditemukan.</td></tr>
+                        <tr><td colspan="13" class="text-center py-4">Tidak ada data ditemukan.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -525,14 +583,18 @@ if ($filter === 'all') {
     document.getElementById('exportBtn').addEventListener('click', function () {
         const table = document.getElementById('dataTable');
         const table_clone = table.cloneNode(true);
-        table_clone.querySelectorAll('.tooltip').forEach(tooltip => tooltip.remove());
-        const rows = table_clone.querySelectorAll('tr');
-        for (let i = 0; i < rows.length; i++) {
-            rows[i].removeChild(rows[i].lastElementChild);
-        }
+
+        const rows_clone = table_clone.querySelectorAll('tr');
+        rows_clone.forEach(row => {
+            if(row.lastElementChild) {
+                row.removeChild(row.lastElementChild); // Remove action column
+            }
+        });
+
         const wb = XLSX.utils.table_to_book(table_clone, { sheet: "Firmware Data" });
         XLSX.writeFile(wb, 'FirmwareData.xlsx');
     });
+
 
     // Modal Logic
     const viewModal = document.getElementById('viewModal');
