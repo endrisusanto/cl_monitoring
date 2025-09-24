@@ -197,7 +197,10 @@ if ($filter === 'all') {
         .themed-table tr:hover td {
             background-color: var(--table-hover-bg);
         }
-        .themed-table td { cursor: pointer; }
+        .themed-table td { 
+            cursor: pointer; 
+            position: relative; /* Added for tooltip positioning */
+        }
         
         /* Sticky action column */
         .sticky-col {
@@ -314,7 +317,6 @@ if ($filter === 'all') {
     <div class="w-full mx-auto px-4 md:px-8">
         <h1 class="text-4xl font-bold mb-8 text-center tracking-wider">Manajemen Data Firmware</h1>
 
-        <!-- Search and Filter Section -->
         <div class="mb-8 p-4 glass-container">
             <div class="flex flex-col md:flex-row flex-wrap gap-2 items-center">
                 <form method="GET" action="index.php" class="flex-grow flex gap-2 items-center w-full md:w-auto">
@@ -401,7 +403,6 @@ if ($filter === 'all') {
                                 $row_json = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8');
                             ?>
                             <tr>
-                                <!-- Sel data sesuai urutan baru -->
                                 <td data-copy="<?= htmlspecialchars($row['model']) ?>" class="text-left"><?= htmlspecialchars($row['model']) ?><span class="tooltip">Copied!</span></td>
                                 <td data-copy="<?= htmlspecialchars($row['ap']) ?>"><?= htmlspecialchars($row['ap']) ?><span class="tooltip">Copied!</span></td>
                                 <td data-copy="<?= htmlspecialchars($row['cp_modem']) ?>"><?= htmlspecialchars($row['cp_modem']) ?><span class="tooltip">Copied!</span></td>
@@ -455,7 +456,6 @@ if ($filter === 'all') {
         </div>
     </div>
 
-    <!-- View Modal -->
     <div id="viewModal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 hidden transition-opacity duration-300">
         <div class="glass-container p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0">
             <div class="flex justify-between items-center mb-4 border-b pb-3" style="border-color: var(--glass-border);">
@@ -463,8 +463,7 @@ if ($filter === 'all') {
                 <button id="closeModalBtn" class="text-3xl transition-transform duration-200 hover:rotate-90" style="color: var(--text-secondary-color);">&times;</button>
             </div>
             <div id="modalContent" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Data akan diinjeksikan di sini oleh JavaScript -->
-            </div>
+                </div>
         </div>
     </div>
 
@@ -538,29 +537,29 @@ if ($filter === 'all') {
     // --- Other Scripts ---
     function copyToClipboard(text, element) {
         if (!text) return;
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-
-        let tooltip = element.querySelector('.tooltip') || element.parentElement.querySelector('.tooltip');
-        if (tooltip) {
-            tooltip.classList.add('tooltip-active');
-            const originalText = tooltip.textContent;
-            tooltip.textContent = 'Copied!';
-            setTimeout(() => {
-                tooltip.classList.remove('tooltip-active');
-                tooltip.textContent = originalText;
-            }, 1500);
-        }
+        navigator.clipboard.writeText(text).then(function() {
+            let tooltip = element.querySelector('.tooltip') || element.parentElement.querySelector('.tooltip');
+            if (tooltip) {
+                const originalText = tooltip.textContent;
+                tooltip.textContent = 'Copied!';
+                tooltip.classList.add('tooltip-active');
+                setTimeout(() => {
+                    tooltip.classList.remove('tooltip-active');
+                    tooltip.textContent = originalText;
+                }, 1500);
+            }
+        }, function(err) {
+            console.error('Async: Could not copy text: ', err);
+        });
     }
 
+
     document.querySelectorAll('td[data-copy]').forEach(td => {
-        td.addEventListener('click', () => {
-            const textToCopy = td.getAttribute('data-copy');
-            if(textToCopy) copyToClipboard(textToCopy, td);
+        td.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'I' && e.target.tagName !== 'A' ) {
+                 const textToCopy = td.getAttribute('data-copy');
+                 if(textToCopy) copyToClipboard(textToCopy, td);
+            }
         });
     });
 
@@ -584,11 +583,15 @@ if ($filter === 'all') {
         const table = document.getElementById('dataTable');
         const table_clone = table.cloneNode(true);
 
-        const rows_clone = table_clone.querySelectorAll('tr');
-        rows_clone.forEach(row => {
-            if(row.lastElementChild) {
-                row.removeChild(row.lastElementChild); // Remove action column
-            }
+        // Remove the action column header and cells
+        table_clone.querySelector('thead tr').deleteCell(-1);
+        Array.from(table_clone.querySelectorAll('tbody tr')).forEach(row => {
+            row.deleteCell(-1);
+        });
+
+        // Remove tooltip elements
+        table_clone.querySelectorAll('.tooltip').forEach(tooltip => {
+            tooltip.remove();
         });
 
         const wb = XLSX.utils.table_to_book(table_clone, { sheet: "Firmware Data" });
@@ -672,4 +675,3 @@ if ($filter === 'all') {
     </script>
 </body>
 </html>
-
